@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Xml;
+using System.Reflection;
 
 namespace Abidar
 {
@@ -23,7 +24,18 @@ namespace Abidar
                             Task task = new Task(double.Parse(attributes["interval"].Value));
 
                             task.Name = attributes["name"].Value;
-                            task.TaskType = Type.GetType(attributes["type"].Value, true);
+                            // In some cases user might use an assembly in different path
+                            // Check if it has "assemblyPath" attributes
+                            if (attributes["assemblyPath"] != null)
+                            {
+                                Assembly targetAssembly = Assembly.LoadFrom(attributes["assemblyPath"].Value);
+                                task.TaskType = targetAssembly.GetType(attributes["type"].Value, true);
+                            }
+                            else
+                            {
+                                //Load assembly in current path or global assembly cache
+                                task.TaskType = Type.GetType(attributes["type"].Value, true);
+                            }
                             task.Enabled = bool.Parse(attributes["enabled"].Value);
                             task.Priority = (Priority)Convert.ToInt16(attributes["priority"].Value);
                             task.ConfigurationNode = node;
