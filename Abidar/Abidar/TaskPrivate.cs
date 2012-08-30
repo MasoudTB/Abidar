@@ -34,12 +34,16 @@ namespace Abidar
 
                 this.LastRunTime = DateTime.Now;
 
-                MethodInfo method = this.TaskType.GetMethod("Execute");
-                object[] arguments = { this.ConfigurationNode };
+                //We are sure that TaskType is ITask so why we need to call using Invoke?
+                ITask targetTask = (ITask) Activator.CreateInstance(this.TaskType);
+                targetTask.Execute(this.ConfigurationNode);
 
-                object obj = Activator.CreateInstance(this.TaskType);
-
-                method.Invoke(obj, new object[] { this.ConfigurationNode });
+                #region Commented
+                //MethodInfo method = this.TaskType.GetMethod("Execute");
+                //object[] arguments = { this.ConfigurationNode };
+                //object obj = Activator.CreateInstance(this.TaskType);
+                //method.Invoke(obj, new object[] { this.ConfigurationNode });
+                #endregion
 
                 this.IsLastRunSuccessful = true;
             }
